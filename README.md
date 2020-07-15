@@ -1,6 +1,6 @@
 # test-codeid-nest-mongo-redis
 
-CRUD API with NestJS + MongoDB + Redis
+CodeID coding test, crud with NestJS + MongoDB + Redis
 
 ## Installation
 
