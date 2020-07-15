@@ -2,19 +2,32 @@ import { Injectable, ConflictException, InternalServerErrorException, NotFoundEx
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
-import { User } from 'src/models/user.model'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { RedisService } from 'src/lib/redis/redis.service'
+import { User, UserConfig } from 'src/schemas/user.schema'
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
+  constructor(@InjectModel('User') private userModel: Model<User>, private redisService: RedisService) {}
+
   async getUsers(): Promise<User[]> {
     return await this.userModel.find()
   }
 
   async getUserById(id: string): Promise<User> {
-    return await this.userModel.findById(id)
+    const cacheKey = UserConfig.cacheKey + id
+    const isCacheExist = await this.redisService.get(cacheKey)
+    if (isCacheExist) {
+      console.log('get from cache')
+      return JSON.parse(isCacheExist)
+    }
+
+    const user = await this.userModel.findById(id)
+    const cacheValue = JSON.stringify(user)
+    await this.redisService.set(cacheKey, cacheValue)
+    console.log('get from db')
+    return user
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {

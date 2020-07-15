@@ -9,3 +9,9 @@ db:
   database: 'crud-api-nest-mongo-redis'
   user: 'mongouser1'
   password: 'W6bMmlohb181BhXu'
+
+redis:
+  host: 'redis-12619.c61.us-east-1-3.ec2.cloud.redislabs.com'
+  port: 12619
+  password: 'VuWRZ8UemTKlfh1kpqHgHbB6WmVCJJcz'
+  expire: 86400
