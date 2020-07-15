@@ -21,17 +21,14 @@ $ npm run start:prod
 ## Guide
 
 - Open swagger document
-
-```bash
-https://crud-api-nest-mongo-redis.herokuapp.com/
-```
+  [https://crud-api-nest-mongo-redis.herokuapp.com/](https://crud-api-nest-mongo-redis.herokuapp.com/)
 
 ## Tech stack
 
 - API - [NestJS](https://nestjs.com/)
 - Database - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 - Cache - [Redislabs](https://redislabs.com/redis-enterprise-cloud/)
-- Deployment - [Herokuu](https://www.heroku.com/)
+- Deployment - [Heroku](https://www.heroku.com/)
 
 ## Stay in touch
 
