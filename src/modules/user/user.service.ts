@@ -15,18 +15,42 @@ export class UserService {
     return await this.userModel.find()
   }
 
-  async getUserById(id: string): Promise<User> {
-    const cacheKey = UserConfig.cacheKey + id
+  async getUserCache(cacheKey: string): Promise<User | null> {
     const isCacheExist = await this.redisService.get(cacheKey)
     if (isCacheExist) {
-      console.log('get from cache')
+      console.log('get from cache', { cacheKey, cacheValue: isCacheExist })
       return JSON.parse(isCacheExist)
     }
+    return null
+  }
 
-    const user = await this.userModel.findById(id)
+  async getUserByAccountNumber(accountNumber: number): Promise<User> {
+    const cacheKey = UserConfig.cacheKey + 'accountNumber_' + accountNumber
+    const cache = await this.getUserCache(cacheKey)
+    if (cache) return cache
+
+    const user = await this.userModel.findOne({ accountNumber })
+    if (!user) throw new NotFoundException(`There's no user for this accountNumber (${accountNumber})`)
+
     const cacheValue = JSON.stringify(user)
     await this.redisService.set(cacheKey, cacheValue)
-    console.log('get from db')
+
+    console.log('get by accountNumber from db', { user })
+    return user
+  }
+
+  async getUserByIdentityNumber(identityNumber: number): Promise<User> {
+    const cacheKey = UserConfig.cacheKey + 'identityNumber_' + identityNumber
+    const cache = await this.getUserCache(cacheKey)
+    if (cache) return cache
+
+    const user = await this.userModel.findOne({ identityNumber })
+    if (!user) throw new NotFoundException(`There's no user for this identityNumber (${identityNumber})`)
+
+    const cacheValue = JSON.stringify(user)
+    await this.redisService.set(cacheKey, cacheValue)
+
+    console.log('get by identityNumber from db', { user })
     return user
   }
 
@@ -44,12 +68,28 @@ export class UserService {
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const { userName, accountNumber, emailAddress, identityNumber } = updateUserDto
     const user = await this.userModel.findById(id)
+    const userClone = { ...user.toObject() }
     if (userName) user.userName = userName
     if (accountNumber) user.accountNumber = accountNumber
     if (emailAddress) user.emailAddress = emailAddress
     if (identityNumber) user.identityNumber = identityNumber
     await user.save()
+
+    // cache
+    const cacheKeyAccountNumber = UserConfig.cacheKey + 'accountNumber_' + user.accountNumber
+    await this.setDelUserCache(cacheKeyAccountNumber, userClone.accountNumber, user.accountNumber, user)
+    const cacheKeyIdentityNumber = UserConfig.cacheKey + 'identityNumber_' + user.identityNumber
+    await this.setDelUserCache(cacheKeyIdentityNumber, userClone.identityNumber, user.identityNumber, user)
+
     return user
+  }
+
+  async setDelUserCache(cacheKey: string, oldKey: any, newKey: any, user: User): Promise<void> {
+    return oldKey !== newKey
+      ? await this.redisService.del(cacheKey).then(() => console.log('del cache', { cacheKey }))
+      : await this.redisService
+          .set(cacheKey, JSON.stringify(user))
+          .then(() => console.log('set cache', { cacheKey, cacheValue: JSON.stringify(user) }))
   }
 
   async deleteUser(id: string): Promise<void> {

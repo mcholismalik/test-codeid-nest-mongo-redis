@@ -24,6 +24,8 @@ export class RedisService implements OnModuleInit {
     this.redisClient.on('connect', () => {
       this.redisLogger.log(`Redis connected on ${this.redisConfig.host}:${this.redisConfig.port}`)
     })
+
+    // this.flushAll().then(() => this.redisLogger.log(`Redis flushAll successfully`))
   }
 
   async get(key) {
@@ -39,5 +41,10 @@ export class RedisService implements OnModuleInit {
   async del(key) {
     const del = promisify(this.redisClient.del).bind(this.redisClient)
     return await del(key)
+  }
+
+  async flushAll() {
+    const flushAll = promisify(this.redisClient.flushall).bind(this.redisClient)
+    return await flushAll()
   }
 }

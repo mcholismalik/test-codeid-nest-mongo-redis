@@ -1,4 +1,4 @@
-import { Controller, Post, UsePipes, ValidationPipe, Body, Get, Param, Put, Delete } from '@nestjs/common'
+import { Controller, Post, UsePipes, ValidationPipe, Body, Get, Param, Put, Delete, ParseIntPipe } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UserService } from './user.service'
 import { User } from 'src/schemas/user.schema'
@@ -15,9 +15,14 @@ export class UserController {
     return await this.userService.getUsers()
   }
 
-  @Get('/:id')
-  async getUserById(@Param('id') id: string): Promise<User> {
-    return await this.userService.getUserById(id)
+  @Get('/accountNumber/:accountNumber')
+  async getUserByAccountNumber(@Param('accountNumber') accountNumber: number): Promise<User> {
+    return await this.userService.getUserByAccountNumber(accountNumber)
+  }
+
+  @Get('/identityNumber/:identityNumber')
+  async getUserByIdentityNumber(@Param('identityNumber') identityNumber: number): Promise<User> {
+    return await this.userService.getUserByIdentityNumber(identityNumber)
   }
 
   @Post()
