@@ -6,7 +6,7 @@ jwt:
   secret: 's3cr3tk3y!'
 
 db:
-  database: 'test-codeid-nest-mongo-redis'
+  database: 'mcholismalik-nest-mongo-redis'
   user: 'mongouser1'
   password: 'W6bMmlohb181BhXu'
 
