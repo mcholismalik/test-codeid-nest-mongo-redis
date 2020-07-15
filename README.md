@@ -21,7 +21,7 @@ $ npm run start:prod
 ## Guide
 
 - Open swagger document
-  [https://crud-api-nest-mongo-redis.herokuapp.com/](https://crud-api-nest-mongo-redis.herokuapp.com/)
+  [https://mcholismalik-nest-mongo-redis.herokuapp.com/](https://mcholismalik-nest-mongo-redis.herokuapp.com/)
 
 ## Tech stack
 
