@@ -15,7 +15,7 @@ export class User extends Document {
   @Prop({ type: String, required: true, unique: true })
   identityNumber: number
 
-  @Prop({ type: String })
+  @Prop({ type: String, select: false })
   salt: string
 
   @Prop({ type: String, select: false })

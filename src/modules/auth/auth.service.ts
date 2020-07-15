@@ -19,7 +19,7 @@ export class AuthService {
       user.password = await bcrypt.hash(signUpDto.password, user.salt)
       await user.save()
     } catch (err) {
-      if (err.code === 11000) throw new ConflictException('userName or email already exists')
+      if (err.code === 11000) throw new ConflictException('userName | email | identityNumber | accountNumber already exists')
       throw new InternalServerErrorException()
     }
   }
@@ -35,7 +35,10 @@ export class AuthService {
 
   async validateUserPassword(signInDto: SignInDto): Promise<User | null> {
     const { userName, password } = signInDto
-    const user = await this.userModel.findOne({ userName }).select('+password')
+    const user = await this.userModel
+      .findOne({ userName })
+      .select('+password')
+      .select('+salt')
     return user && (await this.validatePassword(password, user.password, user.salt)) ? user : null
   }
 

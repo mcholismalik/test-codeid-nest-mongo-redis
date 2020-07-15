@@ -59,35 +59,45 @@ export class UserService {
       const user = new this.userModel(createUserDto)
       user.salt = await bcrypt.genSalt()
       user.password = await bcrypt.hash(createUserDto.password, user.salt)
-      const result = await user.save()
-      return result
+      await user.save()
+
+      delete user.salt
+      delete user.password
+      return user
     } catch (err) {
-      if (err.code === 11000) throw new ConflictException('userName or email already exists')
+      if (err.code === 11000) throw new ConflictException('userName | email | identityNumber | accountNumber already exists')
       throw new InternalServerErrorException()
     }
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const { userName, accountNumber, emailAddress, identityNumber, password } = updateUserDto
-    const user = await this.userModel.findById(id)
-    const userClone = { ...user.toObject() }
-    if (userName) user.userName = userName
-    if (accountNumber) user.accountNumber = accountNumber
-    if (emailAddress) user.emailAddress = emailAddress
-    if (identityNumber) user.identityNumber = identityNumber
-    if (password) {
-      user.salt = await bcrypt.genSalt()
-      user.password = await bcrypt.hash(updateUserDto.password, user.salt)
+    try {
+      const { userName, accountNumber, emailAddress, identityNumber, password } = updateUserDto
+      const user = await this.userModel.findById(id)
+      const userClone = { ...user.toObject() }
+      if (userName) user.userName = userName
+      if (accountNumber) user.accountNumber = accountNumber
+      if (emailAddress) user.emailAddress = emailAddress
+      if (identityNumber) user.identityNumber = identityNumber
+      if (password) {
+        user.salt = await bcrypt.genSalt()
+        user.password = await bcrypt.hash(updateUserDto.password, user.salt)
+      }
+      await user.save()
+
+      // cache
+      const cacheKeyAccountNumber = UserConfig.cacheKey + 'accountNumber_' + user.accountNumber
+      await this.setDelUserCache(cacheKeyAccountNumber, userClone.accountNumber, user.accountNumber, user)
+      const cacheKeyIdentityNumber = UserConfig.cacheKey + 'identityNumber_' + user.identityNumber
+      await this.setDelUserCache(cacheKeyIdentityNumber, userClone.identityNumber, user.identityNumber, user)
+
+      delete user.salt
+      delete user.password
+      return user
+    } catch (err) {
+      if (err.code === 11000) throw new ConflictException('userName | email | identityNumber | accountNumber already exists')
+      throw new InternalServerErrorException()
     }
-    await user.save()
-
-    // cache
-    const cacheKeyAccountNumber = UserConfig.cacheKey + 'accountNumber_' + user.accountNumber
-    await this.setDelUserCache(cacheKeyAccountNumber, userClone.accountNumber, user.accountNumber, user)
-    const cacheKeyIdentityNumber = UserConfig.cacheKey + 'identityNumber_' + user.identityNumber
-    await this.setDelUserCache(cacheKeyIdentityNumber, userClone.identityNumber, user.identityNumber, user)
-
-    return user
   }
 
   async setDelUserCache(cacheKey: string, oldKey: any, newKey: any, user: User): Promise<void> {
@@ -99,6 +109,14 @@ export class UserService {
   }
 
   async deleteUser(id: string): Promise<void> {
+    const user = await this.userModel.findById(id)
+
+    // cache
+    const cacheKeyAccountNumber = UserConfig.cacheKey + 'accountNumber_' + user.accountNumber
+    const cacheKeyIdentityNumber = UserConfig.cacheKey + 'identityNumber_' + user.identityNumber
+    await this.redisService.del(cacheKeyAccountNumber).then(() => console.log('del cache', { cacheKey: cacheKeyAccountNumber }))
+    await this.redisService.del(cacheKeyIdentityNumber).then(() => console.log('del cache', { cacheKey: cacheKeyIdentityNumber }))
+
     const result = await this.userModel.deleteOne({ _id: id })
     if (result.n === 0) throw new NotFoundException(`There's no user for this id ${id}`)
   }
