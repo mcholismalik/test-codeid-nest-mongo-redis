@@ -1,4 +1,4 @@
-# test-codeid-nest-mongo-redos
+# test-codeid-nest-mongo-redis
 
 CRUD API with NestJS + MongoDB + Redis
 
