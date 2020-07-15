@@ -59,7 +59,7 @@ export class UserService {
       const user = new this.userModel(createUserDto)
       user.salt = await bcrypt.genSalt()
       user.password = await bcrypt.hash(createUserDto.password, user.salt)
-      await user.save()
+      await (await user.save()).toObject()
 
       delete user.salt
       delete user.password
@@ -83,7 +83,7 @@ export class UserService {
         user.salt = await bcrypt.genSalt()
         user.password = await bcrypt.hash(updateUserDto.password, user.salt)
       }
-      await user.save()
+      await (await user.save()).toObject()
 
       // cache
       const cacheKeyAccountNumber = UserConfig.cacheKey + 'accountNumber_' + user.accountNumber
