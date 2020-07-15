@@ -32,4 +32,4 @@ $ npm run start:prod
 
 ## Stay in touch
 
-- Author - [M Cholis Malik](https://www.linkedin.com/in/mcholismalik/)
+- Author - [Muhammad Cholis Malik](https://www.linkedin.com/in/mcholismalik/)

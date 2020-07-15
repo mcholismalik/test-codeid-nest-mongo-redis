@@ -17,7 +17,7 @@ async function bootstrap() {
   // swagger
   const options = new DocumentBuilder()
     .setTitle('API Doc test-codeid-nest-mongo-redis')
-    .setDescription('Authored by cholis@code.id')
+    .setDescription('Authored by Muhammad Cholis Malik (cholis@code.id)')
     .setVersion('1.0')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'Token' }, 'access-token')
     .build()
