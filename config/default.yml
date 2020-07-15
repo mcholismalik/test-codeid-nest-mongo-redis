@@ -1,0 +1,11 @@
+server:
+  port: 3001
+
+jwt:
+  expiresIn: 36000
+  secret: 's3cr3tk3y!'
+
+db:
+  database: 'crud-api-nest-mongo-redis'
+  user: 'mongouser1'
+  password: 'W6bMmlohb181BhXu'
