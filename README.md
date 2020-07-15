@@ -5,19 +5,16 @@ CRUD API with NestJS + MongoDB + Redis
 ## Installation
 
 ```bash
-$ npm install
+$ npm i
 ```
 
 ## Run
 
 ```bash
 # development
-$ npm run start
-
-# watch mode
 $ npm run start:dev
 
-# production mode
+# production
 $ npm run start:prod
 ```
 
@@ -26,13 +23,16 @@ $ npm run start:prod
 - Open swagger document
 
 ```bash
-http://localhost:3001
+https://crud-api-nest-mongo-redis.herokuapp.com/
 ```
+
+## Tech stack
+
+- API - [NestJS](https://nestjs.com/)
+- Database - [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+- Cache - [Redislabs](https://redislabs.com/redis-enterprise-cloud/)
+- Deployment - [Herokuu](https://www.heroku.com/)
 
 ## Stay in touch
 
 - Author - [M Cholis Malik](https://www.linkedin.com/in/mcholismalik/)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
