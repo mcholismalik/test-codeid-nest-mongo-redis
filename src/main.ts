@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { Logger } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ResponseInterceptor } from './lib/response/response.interceptor'
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap')
@@ -10,11 +11,12 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule)
   app.setGlobalPrefix('api/v1')
+  app.useGlobalInterceptors(new ResponseInterceptor())
   app.enableCors()
 
   // swagger
   const options = new DocumentBuilder()
-    .setTitle('API Documentation for crud-api-nest-mongo-redis')
+    .setTitle('API Doc test-codeid-nest-mongo-redis')
     .setDescription('Authored by cholis@code.id')
     .setVersion('1.0')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'Token' }, 'access-token')

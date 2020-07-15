@@ -5,6 +5,7 @@ import { User } from 'src/schemas/user.schema'
 import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { AuthGuard } from '@nestjs/passport'
+import { ResponsePayload } from 'src/lib/response/response.payload'
 
 @ApiTags('user')
 @ApiBearerAuth('access-token')
@@ -14,35 +15,41 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getUsers(): Promise<User[]> {
-    return await this.userService.getUsers()
+  async getUsers(): Promise<ResponsePayload> {
+    const data = await this.userService.getUsers()
+    return new ResponsePayload(`Get users success`, data)
   }
 
   @Get('/accountNumber/:accountNumber')
-  async getUserByAccountNumber(@Param('accountNumber') accountNumber: number): Promise<User> {
-    return await this.userService.getUserByAccountNumber(accountNumber)
+  async getUserByAccountNumber(@Param('accountNumber') accountNumber: number): Promise<ResponsePayload> {
+    const data = await this.userService.getUserByAccountNumber(accountNumber)
+    return new ResponsePayload(`Get user by accountNumber (${accountNumber}) success`, data)
   }
 
   @Get('/identityNumber/:identityNumber')
-  async getUserByIdentityNumber(@Param('identityNumber') identityNumber: number): Promise<User> {
-    return await this.userService.getUserByIdentityNumber(identityNumber)
+  async getUserByIdentityNumber(@Param('identityNumber') identityNumber: number): Promise<ResponsePayload> {
+    const data = await this.userService.getUserByIdentityNumber(identityNumber)
+    return new ResponsePayload(`Get user by identityNumber (${identityNumber}) success`, data)
   }
 
   @ApiBody({ type: CreateUserDto })
   @Post()
   @UsePipes(ValidationPipe)
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return await this.userService.createUser(createUserDto)
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<ResponsePayload> {
+    const data = await this.userService.createUser(createUserDto)
+    return new ResponsePayload(`Create user success`, data)
   }
 
   @Put('/:id')
   @UsePipes(ValidationPipe)
-  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return await this.userService.updateUser(id, updateUserDto)
+  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<ResponsePayload> {
+    const data = await this.userService.updateUser(id, updateUserDto)
+    return new ResponsePayload(`Update user by id (${id}) success`, data)
   }
 
   @Delete('/:id')
-  async deleteUser(@Param('id') id: string): Promise<void> {
-    return await this.userService.deleteUser(id)
+  async deleteUser(@Param('id') id: string): Promise<ResponsePayload> {
+    await this.userService.deleteUser(id)
+    return new ResponsePayload(`Delete user by id (${id}) success`)
   }
 }
