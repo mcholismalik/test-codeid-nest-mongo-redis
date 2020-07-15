@@ -1,7 +1,7 @@
 import { Injectable, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
-
+import * as bcrypt from 'bcryptjs'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { RedisService } from 'src/lib/redis/redis.service'
@@ -57,6 +57,8 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     try {
       const user = new this.userModel(createUserDto)
+      user.salt = await bcrypt.genSalt()
+      user.password = await bcrypt.hash(createUserDto.password, user.salt)
       const result = await user.save()
       return result
     } catch (err) {
@@ -66,13 +68,17 @@ export class UserService {
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const { userName, accountNumber, emailAddress, identityNumber } = updateUserDto
+    const { userName, accountNumber, emailAddress, identityNumber, password } = updateUserDto
     const user = await this.userModel.findById(id)
     const userClone = { ...user.toObject() }
     if (userName) user.userName = userName
     if (accountNumber) user.accountNumber = accountNumber
     if (emailAddress) user.emailAddress = emailAddress
     if (identityNumber) user.identityNumber = identityNumber
+    if (password) {
+      user.salt = await bcrypt.genSalt()
+      user.password = await bcrypt.hash(updateUserDto.password, user.salt)
+    }
     await user.save()
 
     // cache

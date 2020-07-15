@@ -1,12 +1,15 @@
-import { Controller, Post, UsePipes, ValidationPipe, Body, Get, Param, Put, Delete, ParseIntPipe } from '@nestjs/common'
+import { Controller, Post, UsePipes, ValidationPipe, Body, Get, Param, Put, Delete, ParseIntPipe, UseGuards } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UserService } from './user.service'
 import { User } from 'src/schemas/user.schema'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { AuthGuard } from '@nestjs/passport'
 
 @ApiTags('user')
+@ApiBearerAuth('access-token')
 @Controller('user')
+@UseGuards(AuthGuard())
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -25,6 +28,7 @@ export class UserController {
     return await this.userService.getUserByIdentityNumber(identityNumber)
   }
 
+  @ApiBody({ type: CreateUserDto })
   @Post()
   @UsePipes(ValidationPipe)
   async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {

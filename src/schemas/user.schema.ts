@@ -18,7 +18,7 @@ export class User extends Document {
   @Prop({ type: String })
   salt: string
 
-  @Prop({ type: String })
+  @Prop({ type: String, select: false })
   password: string
 }
 
